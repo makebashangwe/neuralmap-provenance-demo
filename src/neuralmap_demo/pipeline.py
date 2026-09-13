@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Iterable
 import hashlib
 import json
-import re
 
 
 @dataclass(frozen=True)
@@ -124,15 +123,20 @@ def normalize_archive(archive: dict):
 
 
 def build_exchanges(archive: dict, messages: list[NormalizedMessage]) -> list[ExchangeUnit]:
-    by_node = {m.node_id: m for m in messages}
+    by_node = {
+        (m.conversation_id, m.node_id): m
+        for m in messages
+    }
     exchanges: list[ExchangeUnit] = []
 
     for conv in archive["conversations"]:
+        cid = conv["conversation_id"]
         path = conv["selected_path"]
         i = 0
+
         while i < len(path):
             node_id = path[i]
-            msg = by_node.get(node_id)
+            msg = by_node.get((cid, node_id))
 
             if not msg or msg.role != "user":
                 i += 1
@@ -143,7 +147,7 @@ def build_exchanges(archive: dict, messages: list[NormalizedMessage]) -> list[Ex
 
             if i + 1 < len(path):
                 next_node = path[i + 1]
-                next_msg = by_node.get(next_node)
+                next_msg = by_node.get((cid, next_node))
                 if next_msg and next_msg.role == "assistant":
                     assistant = next_msg
                     source_path.append(next_node)
@@ -151,8 +155,8 @@ def build_exchanges(archive: dict, messages: list[NormalizedMessage]) -> list[Ex
 
             exchanges.append(
                 ExchangeUnit(
-                    exchange_id=f"{conv['conversation_id']}-ex-{len(exchanges)+1:03d}",
-                    conversation_id=conv["conversation_id"],
+                    exchange_id=f"{cid}-ex-{len(exchanges)+1:03d}",
+                    conversation_id=cid,
                     user_message_id=msg.message_id,
                     assistant_message_id=assistant.message_id if assistant else None,
                     user_text=msg.text,
@@ -165,26 +169,13 @@ def build_exchanges(archive: dict, messages: list[NormalizedMessage]) -> list[Ex
     return exchanges
 
 
-def _tokens(text: str) -> set[str]:
-    return {
-        token for token in re.findall(r"[a-z0-9]+", text.lower())
-        if len(token) > 2
-    }
-
-
-def _jaccard(a: str, b: str) -> float:
-    ta, tb = _tokens(a), _tokens(b)
-    if not ta and not tb:
-        return 1.0
-    if not ta or not tb:
-        return 0.0
-    return len(ta & tb) / len(ta | tb)
-
-
 def label_boundaries(exchanges: list[ExchangeUnit]) -> list[SemanticBoundary]:
     """
     Illustrative public-demo heuristic only.
-    This is not the private production segmentation policy.
+
+    The private production system uses a substantially richer segmentation
+    policy. This demo intentionally relies on explicit synthetic transition
+    cues so the behavior is deterministic and easy to audit.
     """
     results: list[SemanticBoundary] = []
 
@@ -201,9 +192,8 @@ def label_boundaries(exchanges: list[ExchangeUnit]) -> list[SemanticBoundary]:
             label = "SHIFT"
             reason = "explicit activity-shift language"
         else:
-            overlap = _jaccard(prev.user_text, cur.user_text)
-            label = "SAME" if overlap >= 0.05 else "SAME"
-            reason = f"illustrative continuity default; lexical overlap={overlap:.3f}"
+            label = "SAME"
+            reason = "no explicit synthetic transition cue"
 
         results.append(
             SemanticBoundary(
@@ -248,8 +238,10 @@ def run_demo(data_path: Path, out_dir: Path) -> dict:
         "graph_edges": len(edges),
         "exchange_units": len(exchanges),
         "semantic_boundaries": len(boundaries),
-        "labels": {label: sum(1 for b in boundaries if b.label == label)
-                   for label in ["SAME", "SHIFT", "ASIDE", "RESUME"]},
+        "labels": {
+            label: sum(1 for b in boundaries if b.label == label)
+            for label in ["SAME", "SHIFT", "ASIDE", "RESUME"]
+        },
     }
 
     report = [
@@ -260,12 +252,15 @@ def run_demo(data_path: Path, out_dir: Path) -> dict:
         "## Counts",
         "",
     ]
+
     for key, value in summary.items():
         if key != "labels":
             report.append(f"- **{key}:** {value}")
+
     report += ["", "## Boundary labels", ""]
     for key, value in summary["labels"].items():
         report.append(f"- **{key}:** {value}")
+
     report += [
         "",
         "## Design note",
@@ -274,6 +269,6 @@ def run_demo(data_path: Path, out_dir: Path) -> dict:
         "It demonstrates architecture and provenance, not the private production policy.",
         "",
     ]
-    (out_dir / "demo-report.md").write_text("\n".join(report), encoding="utf-8")
 
+    (out_dir / "demo-report.md").write_text("\n".join(report), encoding="utf-8")
     return summary
