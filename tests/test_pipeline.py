@@ -1,4 +1,3 @@
-import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -35,29 +34,94 @@ class NeuralMapDemoTests(unittest.TestCase):
         _, _, messages, spans, _ = normalize_archive(archive)
         by_message = {m.message_id: m for m in messages}
         span_by_message = {s.message_id: s for s in spans}
-        self.assertEqual(
-            span_by_message["m1"].text,
-            by_message["m1"].text,
-        )
+
+        self.assertEqual(span_by_message["m1"].text, by_message["m1"].text)
         self.assertEqual(
             span_by_message["m1"].end_offset,
             len(by_message["m1"].text),
         )
 
-    def test_expected_boundary_labels_exist(self):
+    def test_expected_boundary_sequence(self):
         archive = load_archive(DATA)
         _, _, messages, _, _ = normalize_archive(archive)
         exchanges = build_exchanges(archive, messages)
         boundaries = label_boundaries(exchanges)
         labels = [b.label for b in boundaries]
-        self.assertIn("ASIDE", labels)
-        self.assertIn("RESUME", labels)
-        self.assertIn("SHIFT", labels)
+
+        self.assertEqual(labels, ["SAME", "ASIDE", "RESUME", "SHIFT"])
+
+    def test_node_identity_is_scoped_by_conversation(self):
+        archive = {
+            "conversations": [
+                {
+                    "conversation_id": "conv-a",
+                    "title": "A",
+                    "root_node_id": "n0",
+                    "nodes": [
+                        {"node_id": "n0", "parent_id": None, "message": None},
+                        {
+                            "node_id": "n1",
+                            "parent_id": "n0",
+                            "message": {
+                                "message_id": "a-user",
+                                "role": "user",
+                                "text": "Conversation A",
+                            },
+                        },
+                        {
+                            "node_id": "n2",
+                            "parent_id": "n1",
+                            "message": {
+                                "message_id": "a-assistant",
+                                "role": "assistant",
+                                "text": "Answer A",
+                            },
+                        },
+                    ],
+                    "selected_path": ["n0", "n1", "n2"],
+                },
+                {
+                    "conversation_id": "conv-b",
+                    "title": "B",
+                    "root_node_id": "n0",
+                    "nodes": [
+                        {"node_id": "n0", "parent_id": None, "message": None},
+                        {
+                            "node_id": "n1",
+                            "parent_id": "n0",
+                            "message": {
+                                "message_id": "b-user",
+                                "role": "user",
+                                "text": "Conversation B",
+                            },
+                        },
+                        {
+                            "node_id": "n2",
+                            "parent_id": "n1",
+                            "message": {
+                                "message_id": "b-assistant",
+                                "role": "assistant",
+                                "text": "Answer B",
+                            },
+                        },
+                    ],
+                    "selected_path": ["n0", "n1", "n2"],
+                },
+            ]
+        }
+
+        _, _, messages, _, _ = normalize_archive(archive)
+        exchanges = build_exchanges(archive, messages)
+
+        self.assertEqual(len(exchanges), 2)
+        self.assertEqual(exchanges[0].assistant_message_id, "a-assistant")
+        self.assertEqual(exchanges[1].assistant_message_id, "b-assistant")
 
     def test_run_demo_is_deterministic(self):
         with tempfile.TemporaryDirectory() as d1, tempfile.TemporaryDirectory() as d2:
             run_demo(DATA, Path(d1))
             run_demo(DATA, Path(d2))
+
             for name in [
                 "normalized_conversations.jsonl",
                 "normalized_nodes.jsonl",
