@@ -3,13 +3,16 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "neuralmap-public-demo"
+name = "neuralmap-provenance-demo"
 version = "0.1.0"
 description = "Privacy-safe synthetic demonstration of the NeuralMap / Provenance architecture."
 requires-python = ">=3.11"
 authors = [
   {name = "Makeba Waddy"}
 ]
+
+[project.scripts]
+neuralmap-demo = "neuralmap_demo.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
