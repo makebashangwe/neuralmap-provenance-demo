@@ -1,0 +1,129 @@
+{
+  "archive_id": "synthetic-demo-v1",
+  "conversations": [
+    {
+      "conversation_id": "conv-001",
+      "title": "Synthetic systems conversation",
+      "root_node_id": "n0",
+      "nodes": [
+        {
+          "node_id": "n0",
+          "parent_id": null,
+          "message": null
+        },
+        {
+          "node_id": "n1",
+          "parent_id": "n0",
+          "message": {
+            "message_id": "m1",
+            "role": "user",
+            "text": "I'm building Viridian's backend. Should I use PostgreSQL?"
+          }
+        },
+        {
+          "node_id": "n2a",
+          "parent_id": "n1",
+          "message": {
+            "message_id": "m2a",
+            "role": "assistant",
+            "text": "PostgreSQL is a strong fit for relational data, migrations, and transactional consistency."
+          }
+        },
+        {
+          "node_id": "n2b",
+          "parent_id": "n1",
+          "message": {
+            "message_id": "m2b",
+            "role": "assistant",
+            "text": "Yes. PostgreSQL fits a backend with users, goals, sessions, and rewards well."
+          }
+        },
+        {
+          "node_id": "n3",
+          "parent_id": "n2b",
+          "message": {
+            "message_id": "m3",
+            "role": "user",
+            "text": "Okay. How should authentication work?"
+          }
+        },
+        {
+          "node_id": "n4",
+          "parent_id": "n3",
+          "message": {
+            "message_id": "m4",
+            "role": "assistant",
+            "text": "Use hashed passwords, JWT bearer authentication, protected routes, and ownership checks."
+          }
+        },
+        {
+          "node_id": "n5",
+          "parent_id": "n4",
+          "message": {
+            "message_id": "m5",
+            "role": "user",
+            "text": "Random aside: should I freeze these ripe bananas?"
+          }
+        },
+        {
+          "node_id": "n6",
+          "parent_id": "n5",
+          "message": {
+            "message_id": "m6",
+            "role": "assistant",
+            "text": "Yes. Peel and freeze them for smoothies or banana pudding."
+          }
+        },
+        {
+          "node_id": "n7",
+          "parent_id": "n6",
+          "message": {
+            "message_id": "m7",
+            "role": "user",
+            "text": "Anyway, back to Viridian. Should auth live in its own router?"
+          }
+        },
+        {
+          "node_id": "n8",
+          "parent_id": "n7",
+          "message": {
+            "message_id": "m8",
+            "role": "assistant",
+            "text": "Yes. Keep route handling separate from reusable authentication and service logic."
+          }
+        },
+        {
+          "node_id": "n9",
+          "parent_id": "n8",
+          "message": {
+            "message_id": "m9",
+            "role": "user",
+            "text": "Switching topics: I need to review binary multiplication for computer architecture."
+          }
+        },
+        {
+          "node_id": "n10",
+          "parent_id": "n9",
+          "message": {
+            "message_id": "m10",
+            "role": "assistant",
+            "text": "Start by treating left shifts as multiplication by powers of two."
+          }
+        }
+      ],
+      "selected_path": [
+        "n0",
+        "n1",
+        "n2b",
+        "n3",
+        "n4",
+        "n5",
+        "n6",
+        "n7",
+        "n8",
+        "n9",
+        "n10"
+      ]
+    }
+  ]
+}
