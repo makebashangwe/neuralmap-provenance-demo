@@ -324,3 +324,12 @@ Obsidian / other interfaces
 **Makeba Waddy**
 
 Computer Science student and cloud / AI systems engineer building toward intelligent systems, AI infrastructure, and production software engineering.
+
+
+## License
+
+Copyright © 2026 Makeba Waddy. All rights reserved.
+
+This repository is publicly available for portfolio review and technical
+evaluation. No license is granted to copy, modify, distribute, sublicense,
+or commercially use the source code.
