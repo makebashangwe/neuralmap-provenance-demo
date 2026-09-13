@@ -1,5 +1,7 @@
 # NeuralMap / Provenance
 
+[![Tests](https://github.com/makebashangwe/neuralmap-provenance-demo/actions/workflows/tests.yml/badge.svg)](https://github.com/makebashangwe/neuralmap-provenance-demo/actions/workflows/tests.yml)
+
 **Privacy-safe public demo of a provenance-preserving conversational knowledge pipeline.**
 
 NeuralMap / Provenance is a local-first system for reconstructing long-form AI conversation history into structured dialogue, semantic activity segments, and eventually a longitudinal knowledge graph.
@@ -12,19 +14,11 @@ The production project remains private because it processes personal conversatio
 
 A ChatGPT export is not a knowledge graph.
 
-A single conversation may contain:
-
-- multiple unrelated activities,
-- temporary asides,
-- resumed topics,
-- regenerated answers,
-- alternate conversation branches,
-- attachments and metadata,
-- ideas that reappear months later.
+A single conversation may contain multiple unrelated activities, temporary asides, resumed topics, regenerated answers, alternate conversation branches, attachments and metadata, and ideas that reappear months later.
 
 Simply converting each chat into one Markdown file would preserve a **storage boundary**, not a meaningful knowledge boundary.
 
-NeuralMap solves that by separating:
+NeuralMap separates:
 
 1. **source truth**
 2. **conversation structure**
@@ -59,9 +53,9 @@ The goal is to reorganize the data without destroying source information.
 
 ### Layer 2: Graph-Aware Dialogue Projection
 
-ChatGPT conversations are not always linear transcripts.
+ChatGPT conversations are not always linear transcripts. Regenerated responses and alternate branches create tree-like conversation structures.
 
-Regenerated responses and alternate branches create tree-like conversation structures. NeuralMap preserves those parent/child relationships instead of reconstructing conversations using timestamps alone.
+NeuralMap preserves explicit parent/child relationships instead of reconstructing history from timestamps alone.
 
 ### Layer 3: Activity Segmentation
 
@@ -69,9 +63,7 @@ The semantic layer asks:
 
 > **What activity is the user doing, and when did that activity actually change?**
 
-This is intentionally different from extracting every concept mentioned in the text.
-
-Example:
+That is intentionally different from extracting every concept mentioned in the text.
 
 ```text
 Activity:
@@ -87,7 +79,7 @@ database migrations
 
 ### Layer 4: Knowledge Graph
 
-Later stages can derive entities and relationships such as:
+Later stages can derive relationships such as:
 
 ```text
 Viridian --uses--> PostgreSQL
@@ -105,8 +97,6 @@ Derived records remain linked to their original evidence.
 
 Source records are never overwritten with inferred meaning.
 
-A downstream semantic claim can point back through:
-
 ```text
 knowledge relationship
         ↓
@@ -121,7 +111,7 @@ text span
 original source
 ```
 
-This makes semantic output auditable and replaceable without rewriting history.
+This keeps semantic output auditable and replaceable without rewriting history.
 
 ---
 
@@ -139,14 +129,14 @@ The private NeuralMap system has processed and validated:
 
 The production pipeline also includes:
 
-- deterministic repeat-run validation,
-- graph-integrity checks,
-- SHA-256 artifact manifests,
-- incremental snapshot ingestion,
-- stable canonical identities,
-- conversation-disjoint evaluation datasets,
-- frozen model/policy evaluation,
-- precision / recall / F1 quality gates.
+- deterministic repeat-run validation
+- graph-integrity checks
+- SHA-256 artifact manifests
+- incremental snapshot ingestion
+- stable canonical identities
+- conversation-disjoint evaluation datasets
+- frozen model/policy evaluation
+- precision / recall / F1 quality gates
 
 ---
 
@@ -167,26 +157,24 @@ One frozen segmentation candidate achieved:
 
 The candidate was **rejected** because it missed too many real activity shifts.
 
-That result is intentionally documented.
-
-The purpose of the evaluation system is not to make every experiment look successful. It is to prevent unreliable semantic structure from contaminating the downstream knowledge graph.
+That result is intentionally documented. The evaluation system exists to prevent unreliable semantic structure from contaminating the downstream knowledge graph.
 
 ---
 
 ## What This Public Demo Includes
 
-This repository contains a small synthetic archive designed to demonstrate:
+The synthetic archive demonstrates:
 
-- conversation trees,
-- regenerated assistant responses,
-- selected conversation paths,
-- temporary asides,
-- explicit topic resumption,
-- genuine activity shifts,
-- provenance-preserving text spans,
-- deterministic outputs.
+- conversation trees
+- regenerated assistant responses
+- selected conversation paths
+- temporary asides
+- explicit topic resumption
+- genuine activity shifts
+- provenance-preserving text spans
+- deterministic outputs
 
-The demo pipeline produces:
+The demo produces:
 
 ```text
 out/
@@ -208,46 +196,41 @@ out/
 
 - Python 3.11+
 
-Clone the repository and run:
+Clone and install:
 
 ```bash
-git clone <your-repository-url>
-cd neuralmap-public-demo
+git clone https://github.com/makebashangwe/neuralmap-provenance-demo.git
+cd neuralmap-provenance-demo
+python -m pip install -e .
 ```
 
-Run the demo directly:
+Run the demo:
 
 ```bash
-PYTHONPATH=src python -m neuralmap_demo.cli
-```
-
-On Windows PowerShell:
-
-```powershell
-$env:PYTHONPATH="src"
-python -m neuralmap_demo.cli
+neuralmap-demo
 ```
 
 Run the tests:
 
 ```bash
-PYTHONPATH=src python -m unittest discover -s tests -v
+python -m unittest discover -s tests -v
 ```
 
-The public demo currently includes tests for:
+The public demo tests:
 
-- branch preservation,
-- regenerated-response path selection,
-- exact text-span preservation,
-- expected semantic boundary labels,
-- deterministic repeat-run output.
+- branch preservation
+- regenerated-response path selection
+- exact text-span preservation
+- conversation-safe node identity
+- expected semantic boundary sequence
+- deterministic repeat-run output
 
 ---
 
 ## Repository Structure
 
 ```text
-neuralmap-public-demo/
+neuralmap-provenance-demo/
 ├── data/
 │   └── synthetic_archive.json
 ├── docs/
@@ -260,6 +243,9 @@ neuralmap-public-demo/
 │       └── cli.py
 ├── tests/
 │   └── test_pipeline.py
+├── .github/
+│   └── workflows/
+│       └── tests.yml
 ├── .gitignore
 ├── pyproject.toml
 └── README.md
@@ -273,22 +259,22 @@ The production repository is not public because it processes personal longitudin
 
 This demo does **not** contain:
 
-- real conversation history,
-- personal text excerpts,
-- private evaluation labels,
-- production model artifacts,
-- private local paths,
-- API credentials,
-- production incremental-ingestion state,
-- final Obsidian knowledge output.
+- real conversation history
+- personal text excerpts
+- private evaluation labels
+- production model artifacts
+- private local paths
+- API credentials
+- production incremental-ingestion state
+- final Obsidian knowledge output
 
-The public repository exists to demonstrate the **engineering architecture**, not expose the underlying personal dataset.
+This repository exists to demonstrate the **engineering architecture**, not expose the underlying personal dataset.
 
 ---
 
 ## Current Status
 
-The public demo currently covers:
+The public demo covers:
 
 ```text
 source archive
@@ -319,8 +305,6 @@ Obsidian / other interfaces
 ---
 
 ## Engineering Themes
-
-This project explores:
 
 - data provenance
 - graph-aware data modeling
